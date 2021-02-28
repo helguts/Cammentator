@@ -1,4 +1,4 @@
-from src.cammentator import Cammentator
+from src.Cammentator import Cammentator
 
 
 def main():
