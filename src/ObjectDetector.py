@@ -2,8 +2,11 @@ import cv2
 
 from src.Cascades import Cascades
 
-
 class ObjectDetector:
+    _on_object_detected = None
+
+    def __init__(self, on_object_detected):
+        self._on_object_detected = on_object_detected
 
     def mark_faces(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -11,6 +14,7 @@ class ObjectDetector:
 
         # Draw a rectangle around the faces
         for (x, y, w, h) in faces:
+            self._on_object_detected('face')
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             face = x, y, w, h
             self.mark_eyes(frame, face)
@@ -34,6 +38,7 @@ class ObjectDetector:
         # -- In each face, detect eyes
         eyes = Cascades.EYES.detectMultiScale(roi_gray)
         for (x2, y2, w2, h2) in eyes:
+            self._on_object_detected('eye')
             eye_center = (x + x2 + w2 // 2, y + y2 + h2 // 2)
             radius = int(round((w2 + h2) * 0.25))
             cv2.circle(frame, eye_center, radius, (255, 0, 0), 4)
@@ -46,4 +51,5 @@ class ObjectDetector:
         # -- In each face, detect eyes
         smiles = Cascades.SMILES.detectMultiScale(roi_gray, 1.8, 20)
         for (x2, y2, w2, h2) in smiles:
+            self._on_object_detected('smile')
             cv2.rectangle(roi_color, (x2, y2), (x2 + w2, y2 + h2), (0, 0, 255), 2)
